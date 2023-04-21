@@ -1,0 +1,33 @@
+name: FastAPI Tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+            POSTGRES_PASSWORD: 0000
+            POSTGRES_DBNAME: test
+            POSTGRES_USER: postgres
+            POSTGRES_PORT: 5333
+            POSTGRES_HOST: 127.0.0.1
+        ports:
+          - 5333:5432
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10.6
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest==6.2.5
+        pip install -r requirements.txt
+        echo $'DB_HOST=127.0.0.1\nDB_PORT=5333\nDB_USER=postgres\nDB_PASSWORD=0000\nDATABASE=test' >> .env
+    - name: Run tests
+      run: 
+        pytest
